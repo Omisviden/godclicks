@@ -1,0 +1,34 @@
+CHANGELOG
+
+Semaine du 3 avril:
+* Création du projet sur le modèle du tp masse-ressort
+* Création des structures World, Pixel et Circle
+* Ajout d'une résolution de collision entre deux cercles
+BUG: Ca ne compile pas (stack overflow?)
+
+Semaine du 10 avril:
+* Le programme compile enfin
+* Ajout de particules de sable et d'eau interagissant entre elles
+* Ajout d'un menu pour sélectionner les différents éléments
+Problème: les pixels sont trop petits (TODO: agrandissement?)
+Problème: l'eau n'est pas très réaliste
+Problème: Le programme ralentit vite
+
+Semaine du 17 avril:
+* Correction de la lenteur du programme en cours (utilisation d'une grille 2D afin d'éviter de parcourir le tableau de particules trop de fois)
+* Nomenclature révisée
+* Préparation de la réécriture de la simulation du sable et de l'eau
+* Commentaires de fonctions détaillés
+* Implémentation d'une interprétation 2D du bruit de Perlin en vue d'implémenter du terrain aléatoire généré au lancement du programme
+
+Semaine du 24 avril:
+* Restructuration totale du code avec l'ajout de fichiers sources et headers
+* Ajout d'une taille de pinceau modifiable et d'un restart pour le confort utilisateur
+* Ajout du système physique vu en TP4 Masse-Ressort pour modéliser des cailloux
+* Ajout d'un élément solide, la roche, et la vapeur d'eau (à peaufiner)
+
+Semaine du 27 avril:
+* Ajout d'une simulation de conduction thermique (condensation, fusion, gel, évaporation)
+* Suppression des cailloux et du bruit de Perlin
+* Ajout de glace, point de chaleur, et point de froid
+* Finalisation du programme
