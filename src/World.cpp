@@ -65,7 +65,7 @@ void World::update_particles()
     }
 }
 
-World::Particle World::create_particle(int x, int y, int r, int g, int b, int heat, int type, float conductivity)
+void World::create_particle(int x, int y, int r, int g, int b, int heat, int type, float conductivity)
 {
     Particle p;
     p.x = x;
@@ -77,7 +77,7 @@ World::Particle World::create_particle(int x, int y, int r, int g, int b, int he
     this->grid[x][y] = type;
     p.heat = heat;
     p.conductivity = conductivity;
-    return p;
+    this->particles.push_back(p);
 }
 
 // Linear interpolation between a and b

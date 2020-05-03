@@ -5,6 +5,8 @@
 
 #define G_INIT_SIZE 500
 
+using namespace sf;
+
 class World
 {
 public:
@@ -35,5 +37,5 @@ private:
     void update_ice(int i);
 public:
     std::vector<Particle> particles; // push_back == append
-    Particle create_particle(int x, int y, int r, int g, int b, int heat, int type, float conductivity);
+    void create_particle(int x, int y, int r, int g, int b, int heat, int type, float conductivity);
 };

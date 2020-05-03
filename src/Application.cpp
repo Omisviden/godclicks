@@ -67,21 +67,21 @@ void Application::loop(World &world)
                     break;
             }
 
-            //TODO: Menu selection + different particle types
-            if(left_clicking)
+        }
+
+        //TODO: Menu selection + different particle types
+        if(left_clicking)
+        {
+            if(world.get_grid_index(x, y) == -1)
             {
-                if(world.get_grid_index(x, y) == -1)
-                {
-                    int px = max(1, min(x, grid_size-2));
-                    int py = max(1, min(y, grid_size-2));
-                    World::Particle particle = world.create_particle(px, py, 0, 119, 190, 20, 1, 0.5f);
-                    world.particles.push_back(particle);
-                }
+                int px = max(1, min(x, grid_size-2));
+                int py = max(1, min(y, grid_size-2));
+                world.create_particle(px, py, 0, 119, 190, 20, 1, 0.5f);
             }
-            if(right_clicking)
-            {
-                '''Right clicking does not do anything yet!'''
-            }
+        }
+        if(right_clicking)
+        {
+            cout << "Right clicking doesn't do anything yet!" << endl;
         }
     update(world);
     draw(world, 60);
@@ -118,6 +118,7 @@ void Application::draw(World &world, float fps)
         window.draw(rect);
     }
 
+    window.display();
     Time frame_time = clock.getElapsedTime() - frame_start;
     if (frame_delay > frame_time)
     {

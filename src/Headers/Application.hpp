@@ -12,7 +12,7 @@ public:
     Application();
     ~Application();
     void loop(World& world);
-    static const int DIMW = 800;
+    static const int DIMW = 600;
 private:
     void update(World& world);
     void draw(World& world, float fps);
