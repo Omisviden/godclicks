@@ -8,11 +8,6 @@ using namespace sf;
 
 Application::Application() : window(), clock(), event(), platform()
 {
-/*
-#if defined(_DEBUG)
-	cout << "Hello World!" << std::endl;
-#endif
-*/
 	// in Windows at least, this must be called before creating the window
 	float screen_scaling_factor = platform.getScreenScalingFactor(window.getSystemHandle());
 	// Use the screenScalingFactor
@@ -28,21 +23,19 @@ Application::~Application()
 
 void Application::loop(World &world)
 {
+    int grid_size = world.get_grid_size();
 
     // These booleans keep track of whether a pressed mouse button was released
     // for repeat actions such as placing a particle or dragging something
-
-    int grid_size = world.get_grid_size();
-
     bool left_clicking = false;
     bool right_clicking = false;
 
     while(window.isOpen())
     {
         Vector2<int> mousePos = Mouse::getPosition(window);
+        // Mouse x and y are scaled relative to the screen's and world's size
         int x = mousePos.x * grid_size / this->DIMW;
         int y = mousePos.y * grid_size / this->DIMW;
-
         // This loop iterates over queued events and treats them adequately
         while(window.pollEvent(event))
         {
@@ -66,12 +59,11 @@ void Application::loop(World &world)
                 default:
                     break;
             }
-
         }
-
         //TODO: Menu selection + different particle types
         if(left_clicking)
         {
+            cout << world.get_grid_index(x, y) << endl;
             if(world.get_grid_index(x, y) == -1)
             {
                 int px = max(1, min(x, grid_size-2));
@@ -83,6 +75,7 @@ void Application::loop(World &world)
         {
             cout << "Right clicking doesn't do anything yet!" << endl;
         }
+
     update(world);
     draw(world, 60);
     }
@@ -101,7 +94,7 @@ void Application::draw(World &world, float fps)
 
     window.clear(Color::Black);
 
-    // Draw pixel for each particle in world grid
+    // Draws a pixel for each particle in world grid
     for(unsigned int i = 0; i < world.particles.size(); i++)
     {
         int grid_size = world.get_grid_size();
@@ -111,15 +104,19 @@ void Application::draw(World &world, float fps)
         int g = world.particles[i].g;
         int b = world.particles[i].b;
 
+        // Draws pixels whose size is proportional to the window/world size ratio to use as much of the screen as possible
+        // Thus the window size must divide the world size, otherwise casting to int fails to be accurate
         RectangleShape rect;
         rect.setPosition(x, y);
-        rect.setSize(Vector2f(1 + this->DIMW / grid_size, 1 + this->DIMW / grid_size));
+        rect.setSize(Vector2f(this->DIMW / grid_size, this->DIMW / grid_size));
         rect.setFillColor(Color(r, g, b));
         window.draw(rect);
     }
 
     window.display();
     Time frame_time = clock.getElapsedTime() - frame_start;
+
+    // If the frame was rendered too quickly, wait to match desired FPS and prevent overusing resources
     if (frame_delay > frame_time)
     {
         sleep(frame_delay - frame_time);

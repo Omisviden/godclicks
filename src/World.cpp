@@ -8,6 +8,7 @@ using namespace std;
 
 World::World() : grid_size(300), name("Untitled World")
 {
+    //TODO: Swap to a 2D grid of pointers to particles to reduce memory usage
     // Initialize both grids
     for(int i = 0; i < grid_size; i++)
     {
@@ -65,6 +66,7 @@ void World::update_particles()
     }
 }
 
+// Pseudo-constructor for a particle
 void World::create_particle(int x, int y, int r, int g, int b, int heat, int type, float conductivity)
 {
     Particle p;
@@ -75,12 +77,12 @@ void World::create_particle(int x, int y, int r, int g, int b, int heat, int typ
     p.b = b;
     p.type = type;
     this->grid[x][y] = type;
-    p.heat = heat;
+    p.heat = heat; // Heat is stored in Celsius (°C) degrees
     p.conductivity = conductivity;
     this->particles.push_back(p);
 }
 
-// Linear interpolation between a and b
+// Linear interpolation between integers a and b
 int World::interpolate(int a, int b, float weight)
 {
     return round((1-weight)*a + weight*b);
@@ -96,6 +98,8 @@ int World::compute_heat(int i, float conductivity)
 
     int heat_sum = 0;
     int c = 0;
+
+    // Calculate the sum of heat values around the cell, itself included
     for(int i = -1; i < 2; i++)
     {
         for(int j = -1; j < 2; j++)
@@ -111,6 +115,8 @@ int World::compute_heat(int i, float conductivity)
         }
     }
 
+    // New heat value is interpolated between the particle's heat and the average heat of its neighbors and itself
+    // The interpolation weight is proper to each particle type
     if(c)
         return interpolate(this->heatmap[x][y], heat_sum/c, conductivity);
     else
@@ -129,7 +135,7 @@ void World::update_water(int i)
     this->heatmap[x][y] = compute_heat(i, 0.5f); //TODO: Update conductivity
     p->heat = this->heatmap[x][y];
 
-    // Changement d'�tat de l'eau
+    // Changing states based on heat
     if(p->heat <= 0)
     {
         p->type = 4;
@@ -146,15 +152,16 @@ void World::update_water(int i)
         p->r = 170;
         p->g = 170;
         p->b = 170;
-
     }
 
     if(this->grid[x][y] == -1)
         cout << "Error: Mismatched particle and grid index at x: " << x << " y: " << y << endl;
-    if(this->heatmap[x][y] != p->heat)
+    if(this->heatmap[x][y] != p->heat) // Shouldn't ever happen; there's "this->heatmap[x][y] = p->heat" just before it
         cout << "Error: Mismatched particle and grid heat at x: " << x << " y: " << y << endl;
 
-    if(y > 1 && x > 1 && y < grid_size-1 && x < grid_size-1)
+
+    //TODO: Clean up potentially redundant conditions
+    if(y > 0 && x > 0 && y < grid_size && x < grid_size)
     {
         if(this->grid[x][y+1] == -1)
         {
@@ -163,7 +170,7 @@ void World::update_water(int i)
             p->y++;
             swap(this->heatmap[x][y], this->heatmap[x][y+1]);
         }
-        else if(this->grid[x+1][y+1] == -1 && x < grid_size-1)
+        else if(this->grid[x+1][y+1] == -1 && x < grid_size)
         {
             this->grid[x][y] = -1;
             this->grid[x+1][y+1] = 1;
@@ -182,80 +189,44 @@ void World::update_water(int i)
         }
         else
         {
-                    if(this->grid[x-1][y] == -1 && this->grid[x+1][y] == -1)
-        {
-            if(rand() % 2)
+            if(this->grid[x-1][y] == -1 && this->grid[x+1][y] == -1)
             {
-            this->grid[x][y] = -1;
-            this->grid[x-1][y] = 1;
-            p->x--;
-            swap(this->heatmap[x][y], this->heatmap[x-1][y]);
+                if(rand() % 2)
+                {
+                this->grid[x][y] = -1;
+                this->grid[x-1][y] = 1;
+                p->x--;
+                swap(this->heatmap[x][y], this->heatmap[x-1][y]);
+
+                }
+                else
+                {
+                this->grid[x][y] = -1;
+                this->grid[x+1][y] = 1;
+                p->x++;
+                swap(this->heatmap[x][y], this->heatmap[x+1][y]);
+                }
+            }
+            else if(this->grid[x-1][y] == -1)
+            {
+                this->grid[x][y] = -1;
+                this->grid[x-1][y] = 1;
+                p->x--;
+                swap(this->heatmap[x][y], this->heatmap[x-1][y]);
 
             }
-            else
+            else if(this->grid[x+1][y] == -1)
             {
-            this->grid[x][y] = -1;
-            this->grid[x+1][y] = 1;
-            p->x++;
-            swap(this->heatmap[x][y], this->heatmap[x+1][y]);
+
+                this->grid[x][y] = -1;
+                this->grid[x+1][y] = 1;
+                p->x++;
+                swap(this->heatmap[x][y], this->heatmap[x+1][y]);
             }
-        }
-        else if(this->grid[x-1][y] == -1)
-        {
-            this->grid[x][y] = -1;
-            this->grid[x-1][y] = 1;
-            p->x--;
-            swap(this->heatmap[x][y], this->heatmap[x-1][y]);
-
-        }
-        else if(this->grid[x+1][y] == -1)
-        {
-
-            this->grid[x][y] = -1;
-            this->grid[x+1][y] = 1;
-            p->x++;
-            swap(this->heatmap[x][y], this->heatmap[x+1][y]);
-        }
-        }
-    }
-    else if(x > 0 && y > 0 && y < grid_size && x < grid_size)
-    {
-        if(this->grid[x-1][y] == -1 && this->grid[x+1][y] == -1)
-        {
-            if(rand() % 2)
-            {
-            this->grid[x][y] = -1;
-            this->grid[x-1][y] = 1;
-            p->x--;
-            swap(this->heatmap[x][y], this->heatmap[x-1][y]);
-
-            }
-            else
-            {
-            this->grid[x][y] = -1;
-            this->grid[x+1][y] = 1;
-            p->x++;
-            swap(this->heatmap[x][y], this->heatmap[x+1][y]);
-            }
-        }
-        else if(this->grid[x-1][y] == -1)
-        {
-            this->grid[x][y] = -1;
-            this->grid[x-1][y] = 1;
-            p->x--;
-            swap(this->heatmap[x][y], this->heatmap[x-1][y]);
-
-        }
-        else if(this->grid[x+1][y] == -1)
-        {
-
-            this->grid[x][y] = -1;
-            this->grid[x+1][y] = 1;
-            p->x++;
-            swap(this->heatmap[x][y], this->heatmap[x+1][y]);
         }
     }
 }
+
 void World::update_steam(int i)
 {
     Particle *p = &this->particles[i];
